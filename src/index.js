@@ -1,39 +1,28 @@
-import { observable, computed } from 'mobx';
-import { Provider } from 'mobx-react';
-import * as React from 'react';
-import ReactDOM from 'react-dom';
-import TodoListView from "./TodoListView.js";
-import registerServiceWorker from "./registerServiceWorker";
+import React from "react";
+import { render } from "react-dom";
+import DevTools from "mobx-react-devtools";
 
-import "./index.css";
+import TodoList from "./components/TodoList";
+import TodoListModel from "./models/TodoListModel";
+import TodoModel from "./models/TodoModel";
 
-const todoStore = title => {
-	return {
-		@observable title: title,
-		@observable finished: false,
-		id: Math.random()
-	};
-};
+const store = new TodoListModel();
 
-const todoListStore = {
-	@observable todos: [],
-	@computed get unfinishedTodoCount() {
-	return todoListStore.todos.filter(todo => !todo.finished).length;
-	}
-};
-
-ReactDOM.render(
-	<Provider todoListStore={todoListStore}>
-		<TodoListView />
-	</Provider>,
-	document.getElementById("root")
+render(
+  <div>
+    <DevTools />
+    <TodoList store={store} />
+  </div>,
+  document.getElementById("root")
 );
 
-todoListStore.todos.push(
-	todoStore("Get Coffee"),
-	todoStore("Write simpler code")
-);
+store.addTodo("Get Coffee");
+store.addTodo("Write simpler code");
+store.todos[0].finished = true;
 
-todoListStore.todos[0].finished = true;
+setTimeout(() => {
+  store.addTodo("Get a cookie as well");
+}, 2000);
 
-registerServiceWorker();
+// playing around in the console
+window.store = store;
